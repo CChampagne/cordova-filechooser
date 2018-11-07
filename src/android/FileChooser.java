@@ -1,5 +1,8 @@
 package com.megster.cordova;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -37,9 +40,9 @@ public class FileChooser extends CordovaPlugin {
         intent.setType("*/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); 
+		intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); 
 
-        Intent chooser = Intent.createChooser(intent, "Select File");
+        Intent chooser = Intent.createChooser(intent, "Select or several Files");
         cordova.startActivityForResult(this, chooser, PICK_FILE_REQUEST);
 
         PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
@@ -51,26 +54,30 @@ public class FileChooser extends CordovaPlugin {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if (requestCode == PICK_FILE_REQUEST && callback != null) {
+        if (requestCode == PICK_FILE_REQUEST && callback != null && data != null) {
 
             if (resultCode == Activity.RESULT_OK) {
+				List<String> uris = new ArrayList<String>();
+				if(null != data.getClipData()) { // checking multiple selection or not
+					for(int i = 0; i < data.getClipData().getItemCount(); i++) {
+						Uri uri = data.getClipData().getItemAt(i).getUri();
+						uris.add(uri.toString());
+						Log.w(TAG, uri.toString());
+					}
+				} else {
+					Uri uri = data.getData();
+					if (uri != null) {
+					} else {
+						callback.error("File uri was null");
+						return;
+					}
+				}
+                callback.success(uris.toString());
 
-                Uri[] uris = data.getData();
 
-                if (uris[] != null) {
-
-                    Log.w(TAG, uris.toString());
-                    callback.success(uris);
-
-                } else {
-
-                    callback.error("File uris were null");
-
-                }
 
             } else if (resultCode == Activity.RESULT_CANCELED) {
 
-                // TODO NO_RESULT or error callback?
                 PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
                 callback.sendPluginResult(pluginResult);
 
