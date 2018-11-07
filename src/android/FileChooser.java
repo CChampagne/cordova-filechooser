@@ -37,6 +37,7 @@ public class FileChooser extends CordovaPlugin {
         intent.setType("*/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); 
 
         Intent chooser = Intent.createChooser(intent, "Select File");
         cordova.startActivityForResult(this, chooser, PICK_FILE_REQUEST);
@@ -54,12 +55,12 @@ public class FileChooser extends CordovaPlugin {
 
             if (resultCode == Activity.RESULT_OK) {
 
-                Uri uri = data.getData();
+                Uri[] uris = data.getData();
 
-                if (uri != null) {
+                if (uri[] != null) {
 
-                    Log.w(TAG, uri.toString());
-                    callback.success(uri.toString());
+                    Log.w(TAG, uris.toString());
+                    callback.success(uris);
 
                 } else {
 
